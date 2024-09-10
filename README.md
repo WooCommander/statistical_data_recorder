@@ -1,16 +1,14 @@
-# statistical_data_recorder
 
-A new Flutter project.
+    delete pubspec.lock file
 
-## Getting Started
+    flutter clean
+    flutter upgrade 
 
-This project is a starting point for a Flutter application.
+    flutter pub get
 
-A few resources to get you started if this is your first Flutter project:
+    try run your project.
+    
+    flutter build apk --debug
+    flutter build apk
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+c:\Program Files\JetBrains\PyCharm 2023.3.1\jbr\bin\keytool -genkey -v -keystore "d:\my-release-key.jks" -keyalg RSA -keysize 2048 -validity 10000 -alias my-key-alias
