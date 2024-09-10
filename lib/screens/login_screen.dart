@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
 import '/data/user_database.dart'; // Импорт класса UserDatabase для аутентификации
 import '/screens/home_page.dart'; // Добавьте эту строку в начало файла
+
 class LoginScreen extends StatefulWidget {
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController(text: "user1");
+  final TextEditingController _passwordController = TextEditingController(text: "password1");
   final UserDatabase _userDatabase = UserDatabase();
 
-void _login() {
-  String username = _usernameController.text;
-  String password = _passwordController.text;
+  void _login() {
+    String username = _usernameController.text;
+    String password = _passwordController.text;
 
-  if (_userDatabase.authenticate(username, password)) {
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
-  } else {
-    _showDialog('Login Failed', 'Invalid username or password.');
+    if (_userDatabase.authenticate(username, password)) {
+      Navigator.of(context)
+          .pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
+    } else {
+      _showDialog('Login Failed', 'Invalid username or password.');
+    }
   }
-}
 
   void _showDialog(String title, String content) {
     showDialog(
