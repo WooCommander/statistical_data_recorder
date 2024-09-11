@@ -13,12 +13,19 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late List<bool> _isOpen = [];
+  bool _showInStockOnly = false;
   String _searchQuery = ""; // Переменная для хранения поискового запроса
 
   @override
   void initState() {
     super.initState();
     _isOpen = List<bool>.filled(stores.length, false);
+  }
+
+  void _toggleInStockOnly(bool value) {
+    setState(() {
+      _showInStockOnly = value;
+    });
   }
 
   // Функция обновления поискового запроса
@@ -29,6 +36,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildProductTable(Store store) {
+    var filteredProducts = store.products;
+    if (_showInStockOnly) {
+      filteredProducts =
+          filteredProducts.where((product) => product.inStock).toList();
+    }
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: DataTable(
@@ -42,9 +54,13 @@ class _HomePageState extends State<HomePage> {
           DataColumn(label: Text('Действия')),
         ],
         rows: store.products.map<DataRow>((product) {
-           final textStyle = product.inStock
-          ? Theme.of(context).textTheme.bodyLarge // Для продуктов в наличии используем стандартный стиль темы
-          : TextStyle(color: Theme.of(context).disabledColor); // Для отсутствующих продуктов используем цвет для неактивных элементов темы
+          final textStyle = product.inStock
+              ? Theme.of(context)
+                  .textTheme
+                  .bodyMedium // Для продуктов в наличии используем стандартный стиль темы
+              : TextStyle(
+                  color: Theme.of(context)
+                      .disabledColor); // Для отсутствующих продуктов используем цвет для неактивных элементов темы
 
           return DataRow(
             cells: [
@@ -99,108 +115,108 @@ class _HomePageState extends State<HomePage> {
     final themeNotifier = Provider.of<ThemeNotifier>(context);
     bool isDarkMode = false;
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Products by Store'), // Название экрана
-        leading: Builder(
-          // Используем Builder для доступа к контексту Scaffold
-          builder: (BuildContext context) {
-            return IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: () {
-                Scaffold.of(context).openDrawer(); // Открытие шторки
-              },
-            );
-          },
-        ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              // Реализация функционала поиска или открытие экрана поиска
+        appBar: AppBar(
+          title: Text('Products by Store'), // Название экрана
+          leading: Builder(
+            // Используем Builder для доступа к контексту Scaffold
+            builder: (BuildContext context) {
+              return IconButton(
+                icon: Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer(); // Открытие шторки
+                },
+              );
             },
           ),
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'Меню',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+          actions: <Widget>[],
+        ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Colors.blue,
+                ),
+                child: Text(
+                  'Меню',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
                 ),
               ),
-            ),
-SwitchListTile(
-          title: Text('Темная тема'),
-          value: themeNotifier.themeData.brightness == Brightness.dark,
-          onChanged: (value) {
-            themeNotifier.setTheme(value ? ThemeData.dark() : ThemeData.light());
-          },
-        ),
-            ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Выход'),
-              onTap: () {
-                // Реализация выхода из приложения
-                Navigator.pop(context); // Закрыть шторку
-                _handleLogout(); // Метод для обработки выхода
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              onChanged: _updateSearchQuery,
-              decoration: InputDecoration(
-                hintText: "Фильтр по категориям...",
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
-                fillColor: Colors.white,
-                filled: true,
-              ),
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              child: ExpansionPanelList(
-                expansionCallback: (int index, bool isExpanded) {
-                  setState(() {
-                    _isOpen[index] = isExpanded;
-                  });
+              SwitchListTile(
+                title: Text('Темная тема'),
+                value: themeNotifier.themeData.brightness == Brightness.dark,
+                onChanged: (value) {
+                  themeNotifier
+                      .setTheme(value ? ThemeData.dark() : ThemeData.light());
                 },
-                children: stores
-                    .where((store) => store.name
-                        .toLowerCase()
-                        .contains(_searchQuery.toLowerCase()))
-                    .map<ExpansionPanel>((Store store) {
-                  int index = stores.indexOf(store);
-                  return ExpansionPanel(
-                    canTapOnHeader: true,
-                    headerBuilder: (BuildContext context, bool isExpanded) {
-                      return ListTile(
-                        title: Text(store.name),
-                      );
-                    },
-                    body: _buildProductTable(store),
-                    isExpanded: _isOpen[index],
-                  );
-                }).toList(),
               ),
-            ),
+              ListTile(
+                leading: Icon(Icons.exit_to_app),
+                title: Text('Выход'),
+                onTap: () {
+                  // Реализация выхода из приложения
+                  Navigator.pop(context); // Закрыть шторку
+                  _handleLogout(); // Метод для обработки выхода
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ),
+        body: Column(children: <Widget>[
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  onChanged: _updateSearchQuery,
+                  decoration: InputDecoration(
+                    hintText: "Фильтр по категориям...",
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.search),
+                    fillColor: Colors.white,
+                    filled: true,
+                  ),
+                ),
+              ),
+              SwitchListTile(
+                title: Text('Показывать только в наличии'),
+                value: _showInStockOnly,
+                onChanged: _toggleInStockOnly,
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: ExpansionPanelList(
+                    expansionCallback: (int index, bool isExpanded) {
+                      setState(() {
+                        _isOpen[index] = isExpanded;
+                      });
+                    },
+                    children: stores
+                        .where((store) => store.name
+                            .toLowerCase()
+                            .contains(_searchQuery.toLowerCase()))
+                        .map<ExpansionPanel>((Store store) {
+                      int index = stores.indexOf(store);
+                      return ExpansionPanel(
+                        canTapOnHeader: true,
+                        headerBuilder: (BuildContext context, bool isExpanded) {
+                          return ListTile(
+                            title: Text(store.name),
+                          );
+                        },
+                        body: _buildProductTable(store),
+                        isExpanded: _isOpen[index],
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ]));
   }
 }
