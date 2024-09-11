@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:statistical_data_recorder/data/product_data.dart';
 import 'package:statistical_data_recorder/screens/edit_product_screen.dart';
 import 'package:statistical_data_recorder/screens/login_screen.dart';
-import '/data/product_data.dart'; // Импортируем новую структуру данных
+import 'package:statistical_data_recorder/utils/theme_notifier.dart';
+// import '/data/product_data.dart'; // Импортируем новую структуру данных
 
 class HomePage extends StatefulWidget {
   @override
@@ -26,62 +28,63 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-Widget _buildProductTable(Store store) {
-  return SingleChildScrollView(
-    scrollDirection: Axis.horizontal,
-    child: DataTable(
-      columns: const [
-        DataColumn(label: Text('Код')),
-        DataColumn(label: Text('Название')),
-        DataColumn(label: Text('Характеристика')),
-        DataColumn(label: Text('Цена')),
-        DataColumn(label: Text('Наличие')),
-        DataColumn(label: Text('Наблюдение')),
-        DataColumn(label: Text('Действия')),
-      ],
-      rows: store.products.map<DataRow>((product) {
-        final textStyle = product.inStock ? TextStyle(color: Colors.black) : TextStyle(color: Colors.grey);
+  Widget _buildProductTable(Store store) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        columns: const [
+          DataColumn(label: Text('Код')),
+          DataColumn(label: Text('Название')),
+          DataColumn(label: Text('Характеристика')),
+          DataColumn(label: Text('Цена')),
+          DataColumn(label: Text('Наличие')),
+          DataColumn(label: Text('Наблюдение')),
+          DataColumn(label: Text('Действия')),
+        ],
+        rows: store.products.map<DataRow>((product) {
+           final textStyle = product.inStock
+          ? Theme.of(context).textTheme.bodyLarge // Для продуктов в наличии используем стандартный стиль темы
+          : TextStyle(color: Theme.of(context).disabledColor); // Для отсутствующих продуктов используем цвет для неактивных элементов темы
 
-        return DataRow(
-          cells: [
-            DataCell(Text(product.code, style: textStyle)),
-            DataCell(Text(product.name, style: textStyle)),
-            DataCell(Text(product.specification, style: textStyle)),
-            DataCell(Text('${product.price} руб.', style: textStyle)),
-            DataCell(Checkbox(
-              value: product.inStock,
-              onChanged: (bool? value) {
-                setState(() {
-                  product.inStock = value ?? false;
-                });
-              },
-            )),
-            DataCell(Checkbox(
-              value: product.isWatched,
-              onChanged: (bool? value) {
-                setState(() {
-                  product.isWatched = value ?? false;
-                });
-              },
-            )),
-            DataCell(IconButton(
-              icon: Icon(Icons.edit),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => EditProductScreen(product: product),
-                  ),
-                );
-              },
-            )),
-          ],
-        );
-      }).toList(),
-    ),
-  );
-}
-
+          return DataRow(
+            cells: [
+              DataCell(Text(product.code, style: textStyle)),
+              DataCell(Text(product.name, style: textStyle)),
+              DataCell(Text(product.specification, style: textStyle)),
+              DataCell(Text('${product.price} руб.', style: textStyle)),
+              DataCell(Checkbox(
+                value: product.inStock,
+                onChanged: (bool? value) {
+                  setState(() {
+                    product.inStock = value ?? false;
+                  });
+                },
+              )),
+              DataCell(Checkbox(
+                value: product.isWatched,
+                onChanged: (bool? value) {
+                  setState(() {
+                    product.isWatched = value ?? false;
+                  });
+                },
+              )),
+              DataCell(IconButton(
+                icon: Icon(Icons.edit),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditProductScreen(product: product),
+                    ),
+                  );
+                },
+              )),
+            ],
+          );
+        }).toList(),
+      ),
+    );
+  }
 
   void _handleLogout() {
     // Здесь может быть реализация выхода из аккаунта или закрытие приложения
@@ -93,6 +96,8 @@ Widget _buildProductTable(Store store) {
 
   @override
   Widget build(BuildContext context) {
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+    bool isDarkMode = false;
     return Scaffold(
       appBar: AppBar(
         title: Text('Products by Store'), // Название экрана
@@ -132,6 +137,13 @@ Widget _buildProductTable(Store store) {
                 ),
               ),
             ),
+SwitchListTile(
+          title: Text('Темная тема'),
+          value: themeNotifier.themeData.brightness == Brightness.dark,
+          onChanged: (value) {
+            themeNotifier.setTheme(value ? ThemeData.dark() : ThemeData.light());
+          },
+        ),
             ListTile(
               leading: Icon(Icons.exit_to_app),
               title: Text('Выход'),
