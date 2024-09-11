@@ -10,7 +10,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late List<bool> _isOpen=[];
+  late List<bool> _isOpen = [];
   String _searchQuery = ""; // Переменная для хранения поискового запроса
 
   @override
@@ -18,12 +18,14 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _isOpen = List<bool>.filled(stores.length, false);
   }
+
   // Функция обновления поискового запроса
   void _updateSearchQuery(String newQuery) {
     setState(() {
       _searchQuery = newQuery;
     });
   }
+
   Widget _buildProductTable(Store store) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -77,80 +79,112 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-void _handleLogout() {
-  // Здесь может быть реализация выхода из аккаунта или закрытие приложения
-  Navigator.of(context).pushReplacement(MaterialPageRoute(
-    builder: (context) => LoginScreen(), // Предполагается, что такой экран есть
-  ));
-}
+
+  void _handleLogout() {
+    // Здесь может быть реализация выхода из аккаунта или закрытие приложения
+    Navigator.of(context).pushReplacement(MaterialPageRoute(
+      builder: (context) =>
+          LoginScreen(), // Предполагается, что такой экран есть
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Products by Store'),actions: <Widget>[
-        Expanded(
-          child: TextField(
-            onChanged: _updateSearchQuery,
-            decoration: InputDecoration(
-              hintText: "Поиск по магазинам...",
-              border: InputBorder.none,
-              filled: true,
-              fillColor: Colors.white,
-              contentPadding: EdgeInsets.all(8),
-            ),
-          ),
+        title: Text('Products by Store'), // Название экрана
+        leading: Builder(
+          // Используем Builder для доступа к контексту Scaffold
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer(); // Открытие шторки
+              },
+            );
+          },
         ),
-      ],
-      ),
-      drawer: Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
-            child: Text(
-              'Меню',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.exit_to_app),
-            title: Text('Выход'),
-            onTap: () {
-              // Реализация выхода из приложения
-              Navigator.pop(context); // Закрыть шторку
-              _handleLogout(); // Метод для обработки выхода
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              // Реализация функционала поиска или открытие экрана поиска
             },
           ),
         ],
       ),
-    ),
-      body: SingleChildScrollView(
-        child: ExpansionPanelList(
-          expansionCallback: (int index, bool isExpanded) {
-            setState(() {
-              _isOpen[index] = isExpanded;
-            });
-          },
-          children: stores.where((store) => store.name.toLowerCase().contains(_searchQuery.toLowerCase())).map<ExpansionPanel>((Store store) {
-            int index = stores.indexOf(store);
-            return ExpansionPanel(
-              canTapOnHeader: true,
-              headerBuilder: (BuildContext context, bool isExpanded) {
-                return ListTile(
-                  title: Text(store.name),
-                );
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Меню',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Выход'),
+              onTap: () {
+                // Реализация выхода из приложения
+                Navigator.pop(context); // Закрыть шторку
+                _handleLogout(); // Метод для обработки выхода
               },
-              body: _buildProductTable(store),
-              isExpanded: _isOpen[index],
-            );
-          }).toList(),
+            ),
+          ],
         ),
+      ),
+      body: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              onChanged: _updateSearchQuery,
+              decoration: InputDecoration(
+                hintText: "Фильтр по категориям...",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
+                fillColor: Colors.white,
+                filled: true,
+              ),
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: ExpansionPanelList(
+                expansionCallback: (int index, bool isExpanded) {
+                  setState(() {
+                    _isOpen[index] = isExpanded;
+                  });
+                },
+                children: stores
+                    .where((store) => store.name
+                        .toLowerCase()
+                        .contains(_searchQuery.toLowerCase()))
+                    .map<ExpansionPanel>((Store store) {
+                  int index = stores.indexOf(store);
+                  return ExpansionPanel(
+                    canTapOnHeader: true,
+                    headerBuilder: (BuildContext context, bool isExpanded) {
+                      return ListTile(
+                        title: Text(store.name),
+                      );
+                    },
+                    body: _buildProductTable(store),
+                    isExpanded: _isOpen[index],
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
