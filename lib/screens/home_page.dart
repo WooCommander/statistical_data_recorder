@@ -26,59 +26,62 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Widget _buildProductTable(Store store) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: DataTable(
-        columns: const [
-          DataColumn(label: Text('Код')),
-          DataColumn(label: Text('Название')),
-          DataColumn(label: Text('Характеристика')),
-          DataColumn(label: Text('Цена')),
-          DataColumn(label: Text('Наличие')),
-          DataColumn(label: Text('Наблюдение')),
-          DataColumn(label: Text('Действия')),
-        ],
-        rows: store.products.map<DataRow>((product) {
-          return DataRow(
-            cells: [
-              DataCell(Text(product.code)),
-              DataCell(Text(product.name)),
-              DataCell(Text(product.specification)),
-              DataCell(Text('${product.price} руб.')),
-              DataCell(Checkbox(
-                value: product.inStock,
-                onChanged: (bool? value) {
-                  setState(() {
-                    product.inStock = value ?? false;
-                  });
-                },
-              )),
-              DataCell(Checkbox(
-                value: product.isWatched,
-                onChanged: (bool? value) {
-                  setState(() {
-                    product.isWatched = value ?? false;
-                  });
-                },
-              )),
-              DataCell(IconButton(
-                icon: Icon(Icons.edit),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EditProductScreen(product: product),
-                    ),
-                  );
-                },
-              )),
-            ],
-          );
-        }).toList(),
-      ),
-    );
-  }
+Widget _buildProductTable(Store store) {
+  return SingleChildScrollView(
+    scrollDirection: Axis.horizontal,
+    child: DataTable(
+      columns: const [
+        DataColumn(label: Text('Код')),
+        DataColumn(label: Text('Название')),
+        DataColumn(label: Text('Характеристика')),
+        DataColumn(label: Text('Цена')),
+        DataColumn(label: Text('Наличие')),
+        DataColumn(label: Text('Наблюдение')),
+        DataColumn(label: Text('Действия')),
+      ],
+      rows: store.products.map<DataRow>((product) {
+        final textStyle = product.inStock ? TextStyle(color: Colors.black) : TextStyle(color: Colors.grey);
+
+        return DataRow(
+          cells: [
+            DataCell(Text(product.code, style: textStyle)),
+            DataCell(Text(product.name, style: textStyle)),
+            DataCell(Text(product.specification, style: textStyle)),
+            DataCell(Text('${product.price} руб.', style: textStyle)),
+            DataCell(Checkbox(
+              value: product.inStock,
+              onChanged: (bool? value) {
+                setState(() {
+                  product.inStock = value ?? false;
+                });
+              },
+            )),
+            DataCell(Checkbox(
+              value: product.isWatched,
+              onChanged: (bool? value) {
+                setState(() {
+                  product.isWatched = value ?? false;
+                });
+              },
+            )),
+            DataCell(IconButton(
+              icon: Icon(Icons.edit),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditProductScreen(product: product),
+                  ),
+                );
+              },
+            )),
+          ],
+        );
+      }).toList(),
+    ),
+  );
+}
+
 
   void _handleLogout() {
     // Здесь может быть реализация выхода из аккаунта или закрытие приложения
