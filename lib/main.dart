@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'Flutter Demo',
           theme: themeNotifier.themeData,
-          home: LoginScreen(),
+          home: HomePage(),
         );
       },
     );
